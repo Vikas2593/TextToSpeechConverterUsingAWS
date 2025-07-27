@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AWS Text to Speech</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 40px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #0078D7;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    audio {
+      display: block;
+      margin: 20px auto;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Text to Speech Converter</h1>
+  <textarea id="textInput" placeholder="Enter your text here..."></textarea>
+  <button onclick="convertTextToSpeech()">Convert to Speech</button>
+  <audio id="audioPlayer" controls></audio>
+
+  <script>
+  async function convertTextToSpeech() {
+  const text = document.getElementById('textInput').value;
+
+  if (!text.trim()) {
+    alert("Please enter some text.");
+    return;
+  }
+
+  try {
+    const response = await fetch('https://abcd.execute-api.ap-south-1.amazonaws.com/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ text: text })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch audio from the API.');
+    }
+
+    // Directly get the response as a blob
+    const audioBlob = await response.blob();
+
+    // Create a URL for the blob and set it as the audio player's source
+    const audioURL = URL.createObjectURL(audioBlob);
+    const audioPlayer = document.getElementById('audioPlayer');
+    audioPlayer.src = audioURL;
+    audioPlayer.play();
+
+  } catch (error) {
+    console.error(error);
+    alert("Error converting text to speech.");
+  }
+}
+  </script>
+</body>
+</html>
